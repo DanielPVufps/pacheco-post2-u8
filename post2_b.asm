@@ -1,25 +1,57 @@
 ORG 100h
 
+section .data
+aLo dw 0FFFFh
+aHi dw 0001h
+bLo dw 0001h
+bHi dw 0001h
+resLo dw 0
+resHi dw 0
+
+msg db "Suma OK: 0003:0000$"
+msgErr db "Error en suma.$"
+
+section .text
 start:
-mov ax, 0B800h
-mov es, ax
+ mov ax, [aLo]
+ mov dx, [aHi]
+ mov bx, [bLo]
+ mov cx, [bHi]
 
-mov di, 0
+ add ax, bx
+ adc dx, cx
 
-mov byte [es:di], 'H'
-mov byte [es:di+1], 1Eh
+ mov [resLo], ax
+ mov [resHi], dx
 
-mov byte [es:di+2], 'O'
-mov byte [es:di+3], 2Eh
+ cmp ax, 0000h
+ jne error
+ cmp dx, 0003h
+ jne error
 
-mov byte [es:di+4], 'L'
-mov byte [es:di+5], 3Eh
+ mov ah, 09h
+ mov dx, msg
+ int 21h
+ jmp fin
 
-mov byte [es:di+6], 'A'
-mov byte [es:di+7], 4Eh
+error:
+ mov ah, 09h
+ mov dx, msgErr
+ int 21h
 
-mov ah, 07h
-int 21h
+fin:
+ mov ah, 4Ch
+ int 21h
+ ; RESTA
+ mov ax, 0000h
+ mov dx, 0003h
+ mov bx, 0001h
+ mov cx, 0001h
 
-mov ah, 4Ch
-int 21h
+ sub ax, bx
+ sbb dx, cx
+
+ cmp ax, 0FFFFh
+ jne error
+ cmp dx, 0001h
+ jne error

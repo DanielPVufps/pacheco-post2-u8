@@ -1,28 +1,43 @@
 ORG 100h
 
-prompt db "Pulse tecla (ESC para salir): $"
+section .data
+bcd1 db 47h
+bcd2 db 38h
+resultado db 0
 
+msg db "BCD suma: $"
+crlf db 0Dh,0Ah,"$"
+
+section .text
 start:
-mov ax, cs
-mov ds, ax
+ mov al, [bcd1]
+ add al, [bcd2]
+ daa
 
-mov ah, 09h
-mov dx, prompt
-int 21h
+ mov [resultado], al
 
-leer:
-mov ah, 00h
-int 16h
+ mov ah, 09h
+ mov dx, msg
+ int 21h
 
-cmp ah, 01h
-je salir
+ mov al, [resultado]
+ mov bl, al
 
-mov ah, 02h
-mov dl, al
-int 21h
+ shr al, 4
+ add al, 30h
+ mov dl, al
+ mov ah, 02h
+ int 21h
 
-jmp leer
+ mov al, bl
+ and al, 0Fh
+ add al, 30h
+ mov dl, al
+ int 21h
 
-salir:
-mov ah, 4Ch
-int 21h
+ mov ah, 09h
+ mov dx, crlf
+ int 21h
+
+ mov ah, 4Ch
+ int 21h

@@ -1,24 +1,25 @@
-ORG 100h
+.div:
+ cmp cl, 0          ; verificar divisor = 0
+ je .divCero
 
-start:
-mov ax, 0B800h
-mov es, ax
+ xor ah, ah         ; limpiar AH → AX listo para división
+ mov al, bl         ; AL = operando A
 
-mov di, 0
+ div cl             ; AL = cociente, AH = residuo
 
-leer:
-mov ah, 00h
-int 16h
+ push ax            ; guardar residuo
 
-cmp al, 13
-je salir
+ xor ah, ah
+ call imprimirAX    ; imprimir cociente
 
-mov [es:di], al
-mov byte [es:di+1], 0Fh
+ pop ax
+ mov al, ah         ; recuperar residuo en AL
+ xor ah, ah
+ ; (opcional: aquí podrías imprimir el residuo)
 
-add di, 2
-jmp leer
+ jmp .fin
 
-salir:
-mov ah, 4Ch
-int 21h
+.divCero:
+ mov ah, 09h
+ mov dx, msgErr
+ int 21h
